@@ -14,32 +14,26 @@ public class Client implements Serializable {
         this.propertyValue = propertyValue;
     }
 
-    public static Client loadFromFile(File file) throws IOException{
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        String name = in.readLine();
-        String ageStr = in.readLine();
-        int age = Integer.parseInt(ageStr);
-        String salaryStr = in.readLine();
-        int salary = Integer.parseInt(salaryStr);
-        String propertyValueStr = in.readLine();
-        int propertyValue = Integer.parseInt(propertyValueStr);
+    public static Client loadFromFile(File file) throws IOException, ClassNotFoundException {
+        Client client = null;
 
-        in.close();
-        return new Client(name,age,salary,propertyValue);
+        try (ObjectInputStream istream = new ObjectInputStream(new FileInputStream(file))) {
+
+            client = (Client) istream.readObject();
+            client.file = file;
+        }
+        return client;
     }
 
     public void connectToFile(File file){
         this.file = file;
     }
 
+     public void save () throws IOException{
 
-     public void save (File file) throws IOException{
-         PrintWriter writer = new PrintWriter(new FileOutputStream(file));
-         writer.println(name);
-         writer.println(age);
-         writer.println(salary);
-         writer.println(propertyValue);
-         writer.close();
+         try(ObjectOutputStream ostream = new ObjectOutputStream(new FileOutputStream(file))){
+             ostream.writeObject(new Client(name,age, salary,propertyValue));
+         }
      }
 
     public String getName() {
